@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3 分鐘搞懂「推理型桌遊」：從核心概念到 4 款經典遊戲速查</title>
+  <style>
+    :root {
+      --bg-main: #F7F3E9;
+      --bg-card: #FFFFFF;
+      --primary: #2C3E50;
+      --primary-light: #34495E;
+      --accent-good: #27AE60;
+      --accent-good-bg: #EAFAF1;
+      --accent-evil: #C0392B;
+      --accent-evil-bg: #FDEDEC;
+      --accent-gold: #D4AC0D;
+      --border-wood: #D5C7A9;
+      --text-main: #333333;
+      --text-muted: #666666;
+      --shadow-slide: 0 12px 32px rgba(44, 62, 80, 0.14);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
+      background-color: #232D36;
+      color: var(--text-main);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 頂部控制列 */
+    .topbar {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      padding: 0.65rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.92rem;
+    }
+
+    .topbar-title {
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .wiki-badge {
+      background-color: rgba(255, 255, 255, 0.16);
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* 進度條 */
+    .progress-bar {
+      width: 100%;
+      height: 4px;
+      background-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .progress-fill {
+      height: 100%;
+      background-color: var(--accent-good);
+      width: 12.5%;
+      transition: width 0.3s ease;
+    }
+
+    /* 簡報主舞台 */
+    .stage {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1.5rem;
+      overflow-y: auto;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1020px;
+      min-height: 560px;
+      background-color: var(--bg-main);
+      border: 2px solid var(--border-wood);
+      border-radius: 16px;
+      box-shadow: var(--shadow-slide);
+      padding: 2.5rem 3rem;
+      flex-direction: column;
+      justify-content: space-between;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    .slide.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 投影片頁首 */
+    .slide-header {
+      border-bottom: 2px solid var(--border-wood);
+      padding-bottom: 0.9rem;
+      margin-bottom: 1.4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 1rem;
+    }
+
+    .slide-kicker {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent-evil);
+      letter-spacing: 0.5px;
+      margin-bottom: 0.25rem;
+      display: block;
+    }
+
+    .slide-header h2 {
+      font-size: 1.75rem;
+      color: var(--primary);
+      line-height: 1.25;
+    }
+
+    .source-tag {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-wood);
+      color: var(--primary);
+      padding: 0.25rem 0.7rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    /* 封面專屬樣式 */
+    .cover-slide {
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at top right, #FFFDF8 0%, var(--bg-main) 75%);
+    }
+
+    .cover-pill {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      padding: 0.4rem 1.1rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 1.2rem;
+    }
+
+    .cover-slide h1 {
+      font-size: 2.55rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      line-height: 1.3;
+    }
+
+    .cover-sub {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 680px;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+    }
+
+    .cover-nodes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.6rem;
+    }
+
+    .node-chip {
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-wood);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* 內容佈局元件 */
+    .slide-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1.1rem;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.9rem;
+    }
+
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-wood);
+      border-radius: 12px;
+      padding: 1.2rem 1.35rem;
+      box-shadow: 0 2px 8px rgba(44, 62, 80, 0.06);
+    }
+
+    .card h3 {
+      color: var(--primary);
+      font-size: 1.1rem;
+      margin-bottom: 0.55rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .card p, .card li {
+      font-size: 0.96rem;
+      line-height: 1.6;
+    }
+
+    .card ul, .card ol {
+      padding-left: 1.25rem;
+    }
+
+    .card li {
+      margin-bottom: 0.4rem;
+    }
+
+    .hook-banner {
+      background-color: #FFFFFF;
+      border-left: 5px solid var(--primary);
+      border-top: 1px solid var(--border-wood);
+      border-right: 1px solid var(--border-wood);
+      border-bottom: 1px solid var(--border-wood);
+      padding: 0.85rem 1.2rem;
+      border-radius: 8px;
+      font-size: 1.02rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .box-good {
+      background-color: var(--accent-good-bg);
+      border-color: #A9DFBF;
+    }
+
+    .box-good h3 {
+      color: var(--accent-good);
+    }
+
+    .box-evil {
+      background-color: var(--accent-evil-bg);
+      border-color: #F5B7B1;
+    }
+
+    .box-evil h3 {
+      color: var(--accent-evil);
+    }
+
+    .step-badge {
+      display: inline-block;
+      background-color: var(--primary);
+      color: #FFFFFF;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 0.15rem 0.55rem;
+      border-radius: 6px;
+      margin-bottom: 0.4rem;
+    }
+
+    /* 表格樣式 */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #FFFFFF;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border-wood);
+      font-size: 0.92rem;
+    }
+
+    th {
+      background-color: var(--primary);
+      color: #FFFFFF;
+      text-align: left;
+      padding: 0.75rem 0.9rem;
+    }
+
+    td {
+      padding: 0.75rem 0.9rem;
+      border-bottom: 1px solid #EAE2D3;
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* 投影片頁尾 */
+    .slide-footer {
+      margin-top: 1.4rem;
+      padding-top: 0.75rem;
+      border-top: 1px dashed var(--border-wood);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* 底部導覽按鈕列 */
+    .controls {
+      background-color: #1B232A;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1.25rem;
+      color: #FFFFFF;
+    }
+
+    .nav-btn {
+      background-color: var(--primary-light);
+      color: #FFFFFF;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 0.5rem 1.25rem;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .nav-btn:hover:not(:disabled) {
+      background-color: var(--accent-good);
+      border-color: var(--accent-good);
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .page-indicator {
+      font-weight: 700;
+      font-size: 0.95rem;
+      min-width: 80px;
+      text-align: center;
+    }
+
+    @media (max-width: 820px) {
+      body {
+        height: auto;
+        overflow: auto;
+      }
+      .slide {
+        padding: 1.5rem;
+        min-height: auto;
+      }
+      .grid-2, .grid-4 {
+        grid-template-columns: 1fr;
+      }
+      .cover-slide h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="topbar-title">🎲 開局前 3 分鐘：桌遊規則速查 LLM Wiki 教學簡報</div>
+    <div class="wiki-badge">知識庫驅動：5 篇已消化 Wiki 節點</div>
+  </header>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <main class="stage">
+
+    <!-- Slide 1: 封面 -->
+    <section class="slide cover-slide active">
+      <div class="cover-pill">新手入門指南 &middot; 從零理解推理桌遊</div>
+      <h1>3 分鐘搞懂「推理型桌遊」<br>從核心概念到 4 款經典遊戲速查</h1>
+      <p class="cover-sub">
+        第一次玩推理桌遊總是被複雜規則嚇到？本簡報整理自 <strong>LLM Wiki 知識庫</strong>，用最白話的結構帶你認識推理遊戲的兩大流派，並掌握 4 款必玩經典的獲勝關鍵與防雷細節。
+      </p>
+      <div class="cover-nodes">
+        <span class="node-chip">📚 WIKI-05 教學黃金法則</span>
+        <span class="node-chip">🗡️ WIKI-03 阿瓦隆</span>
+        <span class="node-chip">🐺 WIKI-01 狼人殺</span>
+        <span class="node-chip">⛏️ WIKI-02 矮人礦坑</span>
+        <span class="node-chip">💌 WIKI-04 情書</span>
+      </div>
+    </section>
+
+    <!-- Slide 2: 為什麼看說明書容易睡著？ -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">CONCEPT 01 &middot; 教學方法論</span>
+            <h2>為什麼新手看說明書容易睡著？</h2>
+          </div>
+          <span class="source-tag">來源：wiki/05-teaching-framework.md</span>
+        </div>
+        <div class="slide-body">
+          <div class="hook-banner">
+            💡 核心問題：傳統說明書先講「配件清單與冷門例外」，玩家在還不知道「怎麼贏」之前就已經認知超載。
+          </div>
+          <div class="grid-4">
+            <div class="card">
+              <span class="step-badge">STEP 1 &middot; 15 秒</span>
+              <h3>一句話鉤子</h3>
+              <p>先用一句話建立代入感：「你是誰、你在做什麼？」（例：一起挖礦，但有人是內鬼）。</p>
+            </div>
+            <div class="card box-good">
+              <span class="step-badge">STEP 2 &middot; 30 秒</span>
+              <h3>明確獲勝條件</h3>
+              <p>直接告訴玩家<strong>「做到什麼事就贏了」</strong>，建立清晰的行動目標。</p>
+            </div>
+            <div class="card">
+              <span class="step-badge">STEP 3 &middot; 90 秒</span>
+              <h3>極簡回合流程</h3>
+              <p>只講「輪到你時可以做哪 1～3 件事」，先跳過冷門例外規則。</p>
+            </div>
+            <div class="card box-evil">
+              <span class="step-badge">STEP 4 &middot; 45 秒</span>
+              <h3>易忘紅字提醒</h3>
+              <p>直接點出最常犯規的 2～3 條鐵律，邊玩邊補充細節即可。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>開局前 3 分鐘：桌遊規則速查 Wiki</span>
+        <span>第 2 / 8 頁</span>
+      </div>
+    </section>
+
+    <!-- Slide 3: 推理型桌遊的兩大光譜 -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">CONCEPT 02 &middot; 基礎概念分類</span>
+            <h2>認識「推理型桌遊」的兩大核心流派</h2>
+          </div>
+          <span class="source-tag">來源：wiki/05-teaching-framework.md &amp; index.md</span>
+        </div>
+        <div class="slide-body">
+          <p>推理桌遊的核心樂趣在於<strong>「資訊不對稱」</strong>——你不知道別人的底牌，必須透過觀察行為與線索拼湊真相。依對立關係可分為兩大類：</p>
+          <div class="grid-2">
+            <div class="card box-good">
+              <h3>🎭 流派 A：陣營推理（Social Deduction）</h3>
+              <ul>
+                <li><strong>核心機制</strong>：玩家秘密分成「好人」與「壞人」兩派，多數人不知道誰是隊友。</li>
+                <li><strong>推理重點</strong>：透過<strong>投票表決、發言邏輯與行動結果</strong>抓出潛伏內鬼。</li>
+                <li><strong>Wiki 代表作</strong>：<strong>阿瓦隆</strong>（零淘汰）、<strong>狼人殺</strong>（有淘汰＋夜間技能）、<strong>矮人礦坑</strong>（手牌接龍＋破壞）。</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>🔍 流派 B：個人邏輯推理（Hand Reading）</h3>
+              <ul>
+                <li><strong>核心機制</strong>：<strong>沒有陣營對立！</strong>每位玩家都是獨立競爭者，各自為戰。</li>
+                <li><strong>推理重點</strong>：透過公開棄牌堆與有限牌庫計算機率，猜測對手手上的底牌。</li>
+                <li><strong>Wiki 代表作</strong>：<strong>情書 (Love Letter)</strong>——全場僅 16 張牌，每回合「抽一打一」。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>理解流派差異，就能快速抓到每款遊戲的思考方向</span>
+        <span>第 3 / 8 頁</span>
+      </div>
+    </section>
+
+    <!-- Slide 4: 案例 1 - 阿瓦隆 -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">CASE 01 &middot; #陣營推理 #零淘汰制</span>
+            <h2>阿瓦隆 (Avalon)：不需主持人的陣營攻防戰</h2>
+          </div>
+          <span class="source-tag">來源：wiki/03-avalon.md</span>
+        </div>
+        <div class="slide-body">
+          <div class="hook-banner">
+            🗡️ 5–10 人（建議 7–8 人）｜30 分鐘｜全程無人出局，梅林知道所有壞人但必須隱藏身分！
+          </div>
+          <div class="grid-2">
+            <div class="card box-good">
+              <h3>🏆 獲勝條件與核心流程</h3>
+              <ul>
+                <li><strong>藍方勝</strong>：完成 <strong>3 次任務成功</strong>，且最後<strong>梅林不被刺客猜中</strong>。</li>
+                <li><strong>紅方勝</strong>：累計 3 次任務失敗、連續 5 次組隊否決，或成功刺殺梅林。</li>
+                <li><strong>三步流程</strong>：隊長提名隊員 → 全員亮牌表決（嚴格過半通過） → 出任務者秘密出成功/失敗牌。</li>
+              </ul>
+            </div>
+            <div class="card box-evil">
+              <h3>⚠️ 新手最常犯規（防雷紅字）</h3>
+              <ul>
+                <li><strong>藍方禁止出「任務失敗」牌</strong>：好人陣營出任務時強制只能出成功牌，不可假裝壞人混淆視聽。</li>
+                <li><strong>投票平手算「否決」</strong>：例如 6 人局 3 贊成 3 反對，組隊依然失敗。</li>
+                <li><strong>梅林別太高調</strong>：帶隊太精準，最後會直接被刺客一刀逆轉！</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Wiki 關聯：與 [[01-werewolf]] 形成「零淘汰 vs. 有淘汰」對比</span>
+        <span>第 4 / 8 頁</span>
+      </div>
+    </section>
+
+    <!-- Slide 5: 案例 2 - 狼人殺 -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">CASE 02 &middot; #陣營推理 #發言邏輯</span>
+            <h2>狼人殺 (Werewolf)：神職線索與白天辯論</h2>
+          </div>
+          <span class="source-tag">來源：wiki/01-werewolf.md</span>
+        </div>
+        <div class="slide-body">
+          <div class="hook-banner">
+            🐺 6–18 人（建議 9–12 人）｜20–45 分鐘｜天黑閉眼發動技能，天亮輪流發言投票放逐！
+          </div>
+          <div class="grid-2">
+            <div class="card box-good">
+              <h3>🏆 獲勝條件與標準設置</h3>
+              <ul>
+                <li><strong>好人勝</strong>：白天投票放逐<strong>所有狼人</strong>。</li>
+                <li><strong>狼人勝</strong>：屠邊局殺光所有神職<strong>或</strong>所有平民。</li>
+                <li><strong>9 人新手局配置</strong>：1 名主持人 ＋ 3 狼人、3 平民、3 神職（預言家、女巫、獵人）。</li>
+              </ul>
+            </div>
+            <div class="card box-evil">
+              <h3>⚠️ 新手最常犯規（防雷紅字）</h3>
+              <ul>
+                <li><strong>女巫不可自救</strong>：標準局女巫全程不可用解藥救自己，且<strong>解藥與毒藥不能同夜使用</strong>。</li>
+                <li><strong>獵人被毒不能開槍</strong>：被狼殺或被投票放逐可開槍，但<strong>被女巫毒死</strong>時無法發動技能。</li>
+                <li><strong>僅首夜死者有遺言</strong>：第二晚之後夜晚死亡的玩家天亮直接出局。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Wiki 關聯：適合喜歡語言邏輯推理與角色技能變化的聚會</span>
+        <span>第 5 / 8 頁</span>
+      </div>
+    </section>
+
+    <!-- Slide 6: 案例 3 - 矮人礦坑 -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">CASE 03 &middot; #秘密身分 #手牌接龍</span>
+            <h2>矮人礦坑 (Saboteur)：邊挖金礦邊抓破壞狂</h2>
+          </div>
+          <span class="source-tag">來源：wiki/02-saboteur.md</span>
+        </div>
+        <div class="slide-body">
+          <div class="hook-banner">
+            ⛏️ 3–10 人（建議 5–8 人）｜30 分鐘（共三輪）｜不用靠嘴砲辯論，看誰把路挖偏就知道誰是壞矮人！
+          </div>
+          <div class="grid-2">
+            <div class="card box-good">
+              <h3>🏆 獲勝條件與極簡行動</h3>
+              <ul>
+                <li><strong>好矮人勝</strong>：在全員無牌可出前，將坑道從起點<strong>連通到真金礦卡</strong>（三張終點之一）。</li>
+                <li><strong>壞矮人勝</strong>：成功阻撓連通直到牌庫與手牌耗盡。</li>
+                <li><strong>回合三選一</strong>：接坑道牌、打出功能牌（壞工具/修工具/落石/地圖），或面朝下棄 1 張牌，接著補 1 張牌。</li>
+              </ul>
+            </div>
+            <div class="card box-evil">
+              <h3>⚠️ 新手最常犯規（防雷紅字）</h3>
+              <ul>
+                <li><strong>工具壞掉禁止挖礦</strong>：面前有任何一張工具損壞卡時，<strong>不能打出坑道牌</strong>（但仍可使用功能牌或棄牌）。</li>
+                <li><strong>坑道牌嚴禁橫放</strong>：只能正放或旋轉 180 度，絕對不能橫放 90 度！</li>
+                <li><strong>身分牌每輪重洗</strong>：一局共打三輪，每輪都要重新發身分牌。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Wiki 關聯：適合怕發言壓力、喜歡手牌策略的新手玩家</span>
+        <span>第 6 / 8 頁</span>
+      </div>
+    </section>
+
+    <!-- Slide 7: 案例 4 - 情書 -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">CASE 04 &middot; #個人推理 #抽一打一</span>
+            <h2>情書 (Love Letter)：沒有陣營對立的 16 張牌心理戰</h2>
+          </div>
+          <span class="source-tag">來源：wiki/04-love-letter.md</span>
+        </div>
+        <div class="slide-body">
+          <div class="hook-banner">
+            💌 2–4 人｜15–20 分鐘｜全場只有 16 張牌，每人手上永遠只有 1 張牌，每回合「抽一張、打一張」！
+          </div>
+          <div class="grid-2">
+            <div class="card box-good">
+              <h3>🏆 獲勝條件與極簡 2 步驟</h3>
+              <ul>
+                <li><strong>單局勝利</strong>：成為場上<strong>最後唯一存活者</strong>，或牌庫抽完時手中持有<strong>數字最大（1～8）</strong>的角色牌。</li>
+                <li><strong>開局盲點設計</strong>：洗勻 16 張牌後先面朝下移除 1 張不公開，確保算牌時保留推理空間。</li>
+                <li><strong>回合 2 步驟</strong>：從牌庫抽 1 張（變 2 張）→ 選擇打出 1 張並立刻執行角色效果。</li>
+              </ul>
+            </div>
+            <div class="card box-evil">
+              <h3>⚠️ 新手最常犯規（防雷紅字）</h3>
+              <ul>
+                <li><strong>1 號衛兵不能猜衛兵</strong>：使用衛兵猜對手手牌時，只能猜 2～8 號角色。</li>
+                <li><strong>7 號伯爵夫人強制出牌</strong>：只要手牌同時有「7 伯爵夫人」與「6 國王」或「5 王子」，<strong>必須強制打出伯爵夫人</strong>。</li>
+                <li><strong>8 號公主棄掉即出局</strong>：無論自己打出或被對手效果棄掉，公主離開手牌就立刻淘汰。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>Wiki 關聯：無陣營隊友、純粹個人推算機率的微桌遊經典</span>
+        <span>第 7 / 8 頁</span>
+      </div>
+    </section>
+
+    <!-- Slide 8: 總結與選局指南 -->
+    <section class="slide">
+      <div>
+        <div class="slide-header">
+          <div>
+            <span class="slide-kicker">SUMMARY &middot; 知識庫交叉比對</span>
+            <h2>聚會怎麼挑？4 款推理桌遊一表看懂</h2>
+          </div>
+          <span class="source-tag">來源：LLM Wiki 全庫整合</span>
+        </div>
+        <div class="slide-body">
+          <table>
+            <thead>
+              <tr>
+                <th>桌遊名稱</th>
+                <th>人數 / 時間</th>
+                <th>推理類型</th>
+                <th>淘汰機制</th>
+                <th>最適合的聚會情境</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>阿瓦隆</strong><br><small>WIKI-03</small></td>
+                <td>5–10 人<br>30 分鐘</td>
+                <td>陣營推理<br>（嘴砲表決）</td>
+                <td><strong>零淘汰</strong><br>（全員玩到底）</td>
+                <td>7–8 人聚會、不想有人提早出局滑手機</td>
+              </tr>
+              <tr>
+                <td><strong>狼人殺</strong><br><small>WIKI-01</small></td>
+                <td>6–18 人<br>20–45 分鐘</td>
+                <td>陣營推理<br>（夜間技能）</td>
+                <td>有淘汰制<br>（需主持人）</td>
+                <td>9 人以上大團體、喜歡角色技能與深度發言</td>
+              </tr>
+              <tr>
+                <td><strong>矮人礦坑</strong><br><small>WIKI-02</small></td>
+                <td>3–10 人<br>30 分鐘</td>
+                <td>陣營推理<br>（手牌接龍）</td>
+                <td><strong>零淘汰</strong><br>（共打三輪）</td>
+                <td>破冰暖場、有不擅長長篇發言的新手在場</td>
+              </tr>
+              <tr>
+                <td><strong>情書</strong><br><small>WIKI-04</small></td>
+                <td>2–4 人<br>15 分鐘</td>
+                <td><strong>個人推理</strong><br>（抽一打一）</td>
+                <td>單局淘汰<br>（每局 3 分鐘）</td>
+                <td>小人數聚會、等上菜空檔、喜歡算牌心理戰</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="hook-banner">
+            🚀 下一步行動：打開 <strong>開局前 3 分鐘：桌遊規則速查 Wiki</strong>，挑選一款今晚就開局！
+          </div>
+        </div>
+      </div>
+      <div class="slide-footer">
+        <span>簡報自動生成自 LLM Wiki 知識庫（WIKI-01 ~ WIKI-05）</span>
+        <span>第 8 / 8 頁</span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="controls">
+    <button type="button" class="nav-btn" id="prevBtn">← 上一頁</button>
+    <span class="page-indicator" id="pageIndicator">1 / 8</span>
+    <button type="button" class="nav-btn" id="nextBtn">下一頁 →</button>
+  </footer>
+
+  <script>
+    const slides = document.querySelectorAll('.slide');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const pageIndicator = document.getElementById('pageIndicator');
+    const progressFill = document.getElementById('progressFill');
+    let currentIndex = 0;
+
+    function updateSlide(index) {
+      slides.forEach((slide, i) => {
+        slide.classList.toggle('active', i === index);
+      });
+      currentIndex = index;
+      pageIndicator.textContent = `${index + 1} / ${slides.length}`;
+      progressFill.style.width = `${((index + 1) / slides.length) * 100}%`;
+      prevBtn.disabled = index === 0;
+      nextBtn.disabled = index === slides.length - 1;
+    }
+
+    prevBtn.addEventListener('click', () => {
+      if (currentIndex > 0) updateSlide(currentIndex - 1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      if (currentIndex < slides.length - 1) updateSlide(currentIndex + 1);
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') {
+        if (currentIndex < slides.length - 1) updateSlide(currentIndex + 1);
+      } else if (e.key === 'ArrowLeft') {
+        if (currentIndex > 0) updateSlide(currentIndex - 1);
+      }
+    });
+
+    updateSlide(0);
+  </script>
+</body>
+</html>
